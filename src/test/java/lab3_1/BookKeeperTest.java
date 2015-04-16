@@ -32,11 +32,34 @@ public class BookKeeperTest {
 		//when
 		when(mockTaxP.calculateTax((ProductType) any(), (Money) any())).thenReturn(new Tax(new Money(1), ""));
 		when(mockIFact.create(clientData)).thenReturn(new Invoice(Id.generate(), clientData));
-		int matcher =1;
+		
 		Invoice invoice = bk.issuance(invoiceRequest, mockTaxP);
-		//Then
+		//then
 		 Assert.assertThat(invoice.getItems().size(), is(1));
 		
+	}
+	
+	@Test
+	public void testCase2() {
+		
+		//given
+		InvoiceFactory mockIFact = mock(InvoiceFactory.class);
+		TaxPolicy mockTaxP = mock(TaxPolicy.class);
+		ProductData productData = new ProductData(Id.generate(), new Money(1), "ranigast", ProductType.DRUG, new Date());
+	    RequestItem requestItem = new RequestItem(productData, 1, new Money(2));
+		ClientData clientData = new ClientData(Id.generate(), "lek");
+		InvoiceRequest invoiceRequest = new InvoiceRequest(clientData);
+		invoiceRequest.add(requestItem);
+		invoiceRequest.add(requestItem);
+		BookKeeper bk = new BookKeeper(mockIFact);
+		
+		//when
+		when(mockTaxP.calculateTax((ProductType) any(), (Money) any())).thenReturn(new Tax(new Money(1), ""));
+		when(mockIFact.create(clientData)).thenReturn(new Invoice(Id.generate(), clientData));
+		bk.issuance(invoiceRequest, mockTaxP);
+		
+		//then
+		verify(mockTaxP, times(2)).calculateTax((ProductType) any(), (Money) any());
 	}
 
 	
